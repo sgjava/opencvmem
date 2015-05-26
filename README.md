@@ -63,6 +63,12 @@ subject see:
 * [Debugging to understand Finalizers](https://plumbr.eu/blog/garbage-collection/debugging-to-understand-finalizer)
 * [Why would you ever implement finalize()?](http://stackoverflow.com/questions/158174/why-would-you-ever-implement-finalize)
 
+"Moral of the story? Next time, when you consider finalize() to be superior to
+the usual cleanup, teardown or finally blocks, think again. You might be happy
+with the clean code you produced, but the ever-growing queue of Finalizable
+objects thrashing your tenured and old generations might indicate the need to
+reconsider."
+
 #### Profiling OpenCVNewMat program
 
 Using Netbeans I profiled [OpenCVNewMat.java](https://github.com/sgjava/opencvmem/blob/master/src/com/codeferm/opencv/OpenCVNewMat.java)
@@ -390,6 +396,13 @@ Valgrind will prove there are other memory leaks lurking in the OpenCV Java
 bindings. Since I first stumbled upon memory issues with the OpenCV Java
 bindings I always check my code with Valgrind to make sure I did not miss
 anything. Here is what I have found to date.
+
+The pull requests below add Mat.release() are based on the issues I reported
+below, but the code still relies on finalize(). This will result in Mat objects
+leaking and a small amount of native memory since n_delete is not called.
+
+* [OpenCV pull request 4056 for master](https://github.com/Itseez/opencv/pull/4056)
+* [OpenCV pull request 4057 for 2.4](https://github.com/Itseez/opencv/pull/4056)
 
 #### Imgproc.findContours
 
