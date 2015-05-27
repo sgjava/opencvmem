@@ -405,9 +405,10 @@ bindings. Since I first stumbled upon memory issues with the OpenCV Java
 bindings I always check my code with Valgrind to make sure I did not miss
 anything. Here is what I have found to date.
 
-The pull requests below add Mat.release() are based on the issues I reported
-below, but the code still relies on finalize(). This will result in Mat objects
-leaking and a small amount of native memory since n_delete is not called.
+The pull requests below add Mat.release() and are based on the issues I reported
+below, but the unpatched code still relies on finalize(). This will result in
+Mat objects leaking and a small amount of native memory since n_delete is not
+called. You get Finalizer thrashing as a bonus.
 
 * [OpenCV pull request 4056 for master](https://github.com/Itseez/opencv/pull/4056)
 * [OpenCV pull request 4057 for 2.4](https://github.com/Itseez/opencv/pull/4056)
