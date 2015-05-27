@@ -320,6 +320,10 @@ above. I also removed the final modifier from nativeObj in order to set it to 0
 once free() is called. This will prevent a JVM crash if delete() is called more
 than once.
 
+The free() method is not thread safe, but this should not be a big deal in most
+situations. Just keep this in mind and use Synchronized if you run into
+multi-threaded situations.
+
 #### Fix Mat
 * Edit `modules/core/misc/java/src/java/core+Mat.java`
 * Find
@@ -361,6 +365,10 @@ Also note how Mat.nativeObj is defined as a public when it should have been
 private with an accessor method. This is improper encapsulation (subclasses
 should use accessor method instead of a public variable), but I tried
 to make my changes minimal.
+
+Finally, the free() method is not thread safe, but this should not be a big
+deal in most situations. Just keep this in mind and use Synchronized if you
+run into multi-threaded situations.
 
 #### Profiling OpenCVFree program
 
