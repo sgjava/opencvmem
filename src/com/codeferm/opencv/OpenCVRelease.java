@@ -44,7 +44,7 @@ public class OpenCVRelease {
             System.gc();
         }
         System.out.println("Sleeping");
-        // You can use this time to view native memory usage
+        // You can use this time to view memory usage
         Thread.sleep(10000);
         System.out.println("Done");
     }

@@ -55,7 +55,7 @@ public class OpenCVFindContours {
         // Contour hierarchy.
         final Mat hierarchy = new Mat();
         // Do it 100 times, so it shows up more easily in Valgrind
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             final List<MatOfPoint> contoursList = new ArrayList<MatOfPoint>();
             Imgproc.findContours(mat, contoursList, hierarchy,
                     Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -73,7 +73,7 @@ public class OpenCVFindContours {
             System.gc();
         }
         System.out.println("Sleeping");
-        // You can use this time to view native memory usage
+        // You can use this time to view memory usage
         Thread.sleep(10000);
         System.out.println("Done");
     }
