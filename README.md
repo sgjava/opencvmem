@@ -436,8 +436,8 @@ LPL [1]: 17,600 bytes in 200 blocks are possibly lost in loss record 1,290 of 1,
       0x1EA4D49B: Java_org_opencv_imgproc_Imgproc_findContours_11 (in /home/<username>/opencv/build/lib/libopencv_java300.so)
 ```
 
-Imgproc.findContours has a memory leak because it creates a local Mat and does
-not release it!. Note how there are 200 leaks in the first section above, but
+Imgproc.findContours has a memory leak because it creates a local a Mat only
+calls Mat.release(). Note how there are 200 leaks in the first section above, but
 cv::findContours is also loosing a block. The code for findContours looks like:
 
 ```
@@ -452,9 +452,8 @@ public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierar
     }
 ```
 
-Note how contours_mat uses Mat.release(). No problem since we can easily change
-this. It is a simple matter of changing contours_mat.release() to
-contours_mat.free().
+We can easily change this. It is a simple matter of changing
+contours_mat.release() to contours_mat.free().
 
 #### Fix Imgproc.findContours (and other generated methods)
 * Edit `modules/java/generator/gen_java.py`
@@ -492,8 +491,8 @@ public static void Mat_to_vector_vector_Point(Mat m, List<MatOfPoint> pts) {
 }
 ```
 
-Note how mi is not uses Mat.release(). No problem since we can fix this too. It
-is a simple matter of generating mi.free().
+Note how mi is uses Mat.release(). We can fix this too. It is a simple matter of
+changing mi.release() mi.free().
 
 #### Fix Converters
 * Edit `modules/java/generator/src/java/utils+Converters.java`
