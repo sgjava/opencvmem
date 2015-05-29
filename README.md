@@ -286,7 +286,7 @@ to do things incorrectly.
 * [New Java memory mgt doc](https://github.com/Itseez/opencv/pull/4019)
 * [Added finalize back in](https://github.com/Itseez/opencv/pull/4029)
 
-#### Fix the Python code generator
+#### Fix wrapped OpenCV classes
 
 * Edit `modules/java/generator/gen_java.py`
 * Find
