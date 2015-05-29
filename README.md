@@ -352,8 +352,6 @@ public final long nativeObj;
 ```
 public long nativeObj;
 ```
-* Change to your opencv build directory
-* `make -j$(getconf _NPROCESSORS_ONLN)`
 
 This will create a free() method that replaces finalize() thus you must make
 sure you call free() when you are done with the Mat. I also removed the final
@@ -449,71 +447,30 @@ public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierar
     Mat contours_mat = new Mat();
     findContours_0(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method, offset.x, offset.y);
     Converters.Mat_to_vector_vector_Point(contours_mat, contours);
+    contours_mat.release();
     return;
-}
-
-//javadoc: findContours(image, contours, hierarchy, mode, method)
-public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierarchy, int mode, int method)
-{
-    Mat contours_mat = new Mat();
-    findContours_1(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method);
-    Converters.Mat_to_vector_vector_Point(contours_mat, contours);
-    return;
-}
+    }
 ```
 
-Note how contours_mat is not released the "normal" OpenCV way. No problem since
-we can fix this too. It is a simple matter of adding contours_mat.free(). If you
-are using the unmodified Mat class then you can do contours_mat.release(), but
-you will still be leaking Mat objects.
+Note how contours_mat uses Mat.release(). No problem since we can easily change
+this. It is a simple matter of changing contours_mat.release() to
+contours_mat.free().
 
-#### Fix Imgproc.findContours
-* Edit `build/src/org/opencv/imgproc/Imgproc.java`
+#### Fix Imgproc.findContours (and other generated methods)
+* Edit `modules/java/generator/gen_java.py`
 * Find
 ```
-public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierarchy, int mode, int method, Point offset)
-{
-    Mat contours_mat = new Mat();
-    findContours_0(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method, offset.x, offset.y);
-    Converters.Mat_to_vector_vector_Point(contours_mat, contours);
-    return;
-}
-
-//javadoc: findContours(image, contours, hierarchy, mode, method)
-public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierarchy, int mode, int method)
-{
-    Mat contours_mat = new Mat();
-    findContours_1(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method);
-    Converters.Mat_to_vector_vector_Point(contours_mat, contours);
-    return;
-}
+j_epilogue.append("Converters.Mat_to_%(t)s(%(n)s_mat, %(n)s);" % {"t" : a.ctype, "n" : a.name})
 ```
-* Change to
+* On the next line add
 ```
-public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierarchy, int mode, int method, Point offset)
-{
-    Mat contours_mat = new Mat();
-    findContours_0(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method, offset.x, offset.y);
-    Converters.Mat_to_vector_vector_Point(contours_mat, contours);
-    contours_mat.free();
-    return;
-}
-
-//javadoc: findContours(image, contours, hierarchy, mode, method)
-public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierarchy, int mode, int method)
-{
-    Mat contours_mat = new Mat();
-    findContours_1(image.nativeObj, contours_mat.nativeObj, hierarchy.nativeObj, mode, method);
-    Converters.Mat_to_vector_vector_Point(contours_mat, contours);
-    contours_mat.free();
-    return;
-}
+j_epilogue.append( "%s_mat.free();" % a.name )
 ```
 
 #### Converters
 
-Converters.Mat_to_vector_vector_Point2f and Converters.Mat_to_vector_vector_Point3f
-have a memory leak because they create local Mats and do not release them!. The
+Converters.Mat_to_vector_vector_Point2f, Converters.Mat_to_vector_vector_Point3f,
+etc. have a Mat leak because they create local Mats and call Mat.release(). The
 code for Converters looks like:
 
 ```
@@ -529,149 +486,24 @@ public static void Mat_to_vector_vector_Point(Mat m, List<MatOfPoint> pts) {
     for (Mat mi : mats) {
         MatOfPoint pt = new MatOfPoint(mi);
         pts.add(pt);
+        mi.release();
     }
-}
-
-// vector_vector_Point2f
-public static void Mat_to_vector_vector_Point2f(Mat m, List<MatOfPoint2f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint2f pt = new MatOfPoint2f(mi);
-        pts.add(pt);
-    }
-}
-
-// vector_vector_Point3f
-public static void Mat_to_vector_vector_Point3f(Mat m, List<MatOfPoint3f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint3f pt = new MatOfPoint3f(mi);
-        pts.add(pt);
-    }
+    mats.clear();
 }
 ```
 
-Note how mi is not released the "normal" OpenCV way. No problem since we can fix
-this too. It is a simple matter of adding mi.free(). If you are using the
-unmodified Mat class then you can do mi.release(), but you will still be leaking
-Mat objects.
+Note how mi is not uses Mat.release(). No problem since we can fix this too. It
+is a simple matter of generating mi.free().
 
 #### Fix Converters
-* Edit `build/src/org/opencv/utils/Converters.java`
-* Find
+* Edit `modules/java/generator/src/java/utils+Converters.java`
+* Find all
 ```
-public static void Mat_to_vector_vector_Point(Mat m, List<MatOfPoint> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint pt = new MatOfPoint(mi);
-        pts.add(pt);
-    }
-}
-
-// vector_vector_Point2f
-public static void Mat_to_vector_vector_Point2f(Mat m, List<MatOfPoint2f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint2f pt = new MatOfPoint2f(mi);
-        pts.add(pt);
-    }
-}
-
-// vector_vector_Point3f
-public static void Mat_to_vector_vector_Point3f(Mat m, List<MatOfPoint3f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint3f pt = new MatOfPoint3f(mi);
-        pts.add(pt);
-    }
-}
+mi.release();
 ```
-* Change to
+* Change all to
 ```
-public static void Mat_to_vector_vector_Point(Mat m, List<MatOfPoint> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint pt = new MatOfPoint(mi);
-        pts.add(pt);
-        mi.free();
-    }
-}
-
-// vector_vector_Point2f
-public static void Mat_to_vector_vector_Point2f(Mat m, List<MatOfPoint2f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint2f pt = new MatOfPoint2f(mi);
-        pts.add(pt);
-        mi.free();
-    }
-}
-
-// vector_vector_Point3f
-public static void Mat_to_vector_vector_Point3f(Mat m, List<MatOfPoint3f> pts) {
-    if (pts == null)
-        throw new java.lang.IllegalArgumentException("Output List can't be null");
-
-    if (m == null)
-        throw new java.lang.IllegalArgumentException("Input Mat can't be null");
-
-    List<Mat> mats = new ArrayList<Mat>(m.rows());
-    Mat_to_vector_Mat(m, mats);
-    for (Mat mi : mats) {
-        MatOfPoint3f pt = new MatOfPoint3f(mi);
-        pts.add(pt);
-        mi.free();
-    }
-}
+mi.free();
 ```
 
 Now when I profile I see only one leak, but it is down in the C++ code
