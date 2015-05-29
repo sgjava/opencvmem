@@ -286,44 +286,6 @@ to do things incorrectly.
 * [New Java memory mgt doc](https://github.com/Itseez/opencv/pull/4019)
 * [Added finalize back in](https://github.com/Itseez/opencv/pull/4029)
 
-#### Fix wrapped OpenCV classes
-
-* Edit `modules/java/generator/gen_java.py`
-* Find
-```
-@Override
-protected void finalize() throws Throwable {
-    delete(nativeObj);
-}
-```
-* Change to
-```
-public void free() {
-    if (nativeObj != 0) {
-        delete(nativeObj);
-        nativeObj = 0;
-    }
-}
-```
-* Find
-```
-protected final long nativeObj;
-```
-* Change to
-```
-protected long nativeObj;
-```
-
-This will create a free() method that replaces finalize(), thus you must make
-sure you call free() when you are done with the various Objects in the list
-above. I also removed the final modifier from nativeObj in order to set it to 0
-once free() is called. This will prevent a JVM crash if delete() is called more
-than once.
-
-The free() method is not thread safe, but this should not be a big deal in most
-situations. Just keep this in mind and use Synchronized if you run into
-multi-threaded situations.
-
 #### Fix Mat
 * Edit `modules/core/misc/java/src/java/core+Mat.java`
 * Find
@@ -394,6 +356,44 @@ Hopefully you will see I am not making a big deal out of nothing by looking
 at the evidence.
 
 ![OpenCVRelease Locks](images/OpenCVFree_locks1.png)
+
+#### Fix wrapped OpenCV classes
+
+* Edit `modules/java/generator/gen_java.py`
+* Find
+```
+@Override
+protected void finalize() throws Throwable {
+    delete(nativeObj);
+}
+```
+* Change to
+```
+public void free() {
+    if (nativeObj != 0) {
+        delete(nativeObj);
+        nativeObj = 0;
+    }
+}
+```
+* Find
+```
+protected final long nativeObj;
+```
+* Change to
+```
+protected long nativeObj;
+```
+
+This will create a free() method that replaces finalize(), thus you must make
+sure you call free() when you are done with the various Objects in the list
+above. I also removed the final modifier from nativeObj in order to set it to 0
+once free() is called. This will prevent a JVM crash if delete() is called more
+than once.
+
+The free() method is not thread safe, but this should not be a big deal in most
+situations. Just keep this in mind and use Synchronized if you run into
+multi-threaded situations.
 
 ### More memory leaks lurking
 
