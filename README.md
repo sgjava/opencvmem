@@ -452,8 +452,7 @@ public static void findContours(Mat image, List<MatOfPoint> contours, Mat hierar
     }
 ```
 
-We can easily change this. It is a simple matter of changing
-contours_mat.release() to contours_mat.free().
+We can fix this by changing contours_mat.release() to contours_mat.free().
 
 #### Fix Imgproc.findContours (and other generated methods)
 * Edit `modules/java/generator/gen_java.py`
@@ -491,8 +490,8 @@ public static void Mat_to_vector_vector_Point(Mat m, List<MatOfPoint> pts) {
 }
 ```
 
-Note how mi is uses Mat.release(). We can fix this too. It is a simple matter of
-changing mi.release() mi.free().
+Note how mi is uses Mat.release(). We can fix this by changing mi.release() to
+mi.free().
 
 #### Fix Converters
 * Edit `modules/java/generator/src/java/utils+Converters.java`
