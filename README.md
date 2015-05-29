@@ -411,7 +411,7 @@ called. You get Finalizer thrashing as a bonus.
 * [OpenCV pull request 4056 for master](https://github.com/Itseez/opencv/pull/4056)
 * [OpenCV pull request 4057 for 2.4](https://github.com/Itseez/opencv/pull/4056)
 
-#### Imgproc.findContours
+#### Imgproc.findContours (and other generated methods)
 
 Using Valgrind I profiled [OpenCVFindContours.java](https://github.com/sgjava/opencvmem/blob/master/src/com/codeferm/opencv/OpenCVFindContours.java)
 without explicit garbage collection:
