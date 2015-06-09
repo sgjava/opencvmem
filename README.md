@@ -525,8 +525,8 @@ LDL [1]: 32,816 bytes in 1 blocks are definitely lost in loss record 1,318 of 1,
 
 ### In summary
 * Object.finalize() is evil as pointed out in various articles and the evidence
-I provided. If you want unpredictable garbage collection, thread contention and
-slower code then by all means use it.
+I provided. If you want native and JVM memory leaks, unpredictable garbage
+collection, thread contention and slower code then by all means use it.
 * Having to rely on System.gc() for garbage collection indicates poorly
 engineered code.
 * NetBeans profiler and Valgrind are indispensable tools for finding memory
