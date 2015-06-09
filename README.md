@@ -351,7 +351,7 @@ and lock contention:
 ![OpenCVRelease Locks](images/OpenCVFree_locks2.png)
 
 Using 100 million Mats we can see that there are no lock contentions! It only
-took 6.9 seconds using free() to process versus 12.37 seconds using finalize().
+took 6.9 minutes using free() to process versus 12.37 minutes using finalize().
 Hopefully you will see I am not making a big deal out of nothing by looking
 at the evidence.
 
