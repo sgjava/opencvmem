@@ -458,9 +458,9 @@ We can fix this by changing contours_mat.release() to contours_mat.free().
 * Edit `modules/java/generator/gen_java.py`
 * Find
 ```
-j_epilogue.append("Converters.Mat_to_%(t)s(%(n)s_mat, %(n)s);" % {"t" : a.ctype, "n" : a.name})
+j_epilogue.append( "%s_mat.release();" % a.name )
 ```
-* On the next line add
+* Change to
 ```
 j_epilogue.append( "%s_mat.free();" % a.name )
 ```
