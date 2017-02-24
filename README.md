@@ -1,4 +1,4 @@
-## OpenCV Java memory management
+![Title](images/title.png)
 
 This is a NetBeans 8 Java project that demonstrates various memory concerns with
 the OpenCV Java bindings. I used NetBeans because of its excellent profiler.
