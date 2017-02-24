@@ -15,14 +15,14 @@ learn how OpenCV Java memory management works skip the items below.
 * Java is installed (I used Oracle JDK 8, Ubuntu, X86_64)
 * Ant is installed (for OpenCV build)
 * You need to install OpenCV's dependencies and build it. I used master branch
-which is currently 3.0.0:
+which is currently 3.2.0:
   `git clone https://github.com/Itseez/opencv.git`
 * Install Valgrind and the Valkyrie GUI `sudo apt-get install valgrind valkyrie`
 * NetBeans 8 was used, but you can compile the source however you wish
 
 ### The current way to free native memory
 
-OpenCV 2.4 and 3.0 use a Python code generator
+OpenCV 2.4 and 3.2 use a Python code generator
 `modules/java/generator/gen_java.py` to generate Java bindings during the build
 process. The generated code to free native resources looks like:
 
