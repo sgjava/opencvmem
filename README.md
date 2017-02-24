@@ -3,9 +3,9 @@
 This is a NetBeans 8 Java project that demonstrates various memory concerns with
 the OpenCV Java bindings. I used NetBeans because of its excellent profiler.
 
-My Ubuntu install script [install-opencv](https://github.com/sgjava/install-opencv)
+My Ubuntu/Debian install script [install-opencv](https://github.com/sgjava/install-opencv)
 patches the OpenCV source to prevent the problems described herein. If you are
-using Ubuntu this will save you a lot of time instead of manually patching.
+using Ubuntu/Debian this will save you a lot of time instead of manually patching.
 
 ### Prerequisites
 
