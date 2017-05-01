@@ -62,6 +62,7 @@ subject see:
 
 * [Debugging to understand Finalizers](https://plumbr.eu/blog/garbage-collection/debugging-to-understand-finalizer)
 * [Why would you ever implement finalize()?](http://stackoverflow.com/questions/158174/why-would-you-ever-implement-finalize)
+* [Oracle recommends axing Java object finalizer](http://www.javaworld.com/article/3186687/java-language/oracle-recommends-axing-java-object-finalizer.html)
 
 "Moral of the story? Next time, when you consider finalize() to be superior to
 the usual cleanup, teardown or finally blocks, think again. You might be happy
