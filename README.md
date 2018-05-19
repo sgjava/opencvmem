@@ -22,7 +22,7 @@ which is currently 3.2.0:
 
 ### The current way to free native memory
 
-OpenCV 2.4 and 3.2 use a Python code generator
+OpenCV 2.4 through 4.0.0-pre use a Python code generator
 `modules/java/generator/gen_java.py` to generate Java bindings during the build
 process. The generated code to free native resources looks like:
 
@@ -286,6 +286,18 @@ to do things incorrectly.
 * [Opencv sgjava](https://github.com/Itseez/opencv/pull/4014)
 * [New Java memory mgt doc](https://github.com/Itseez/opencv/pull/4019)
 * [Added finalize back in](https://github.com/Itseez/opencv/pull/4029)
+* [Get rid of finalizers in Java bindings](https://github.com/opencv/opencv/issues/8683)
+
+#### Fix template
+* Edit `modules/java/generator/templates/java_class.prolog`
+* Find
+```
+public final long nativeObj;
+```
+* Change to
+```
+public long nativeObj;
+```
 
 #### Fix Mat
 * Edit `modules/core/misc/java/src/java/core+Mat.java`
@@ -306,14 +318,6 @@ public void free() {
         nativeObj = 0;
     }
 }
-```
-* Find
-```
-public final long nativeObj;
-```
-* Change to
-```
-public long nativeObj;
 ```
 
 This will create a free() method that replaces finalize() thus you must make
