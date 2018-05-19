@@ -7,6 +7,11 @@ My Ubuntu/Debian install script [install-opencv](https://github.com/sgjava/insta
 patches the OpenCV source to prevent the problems described herein. If you are
 using Ubuntu/Debian this will save you a lot of time instead of manually patching.
 
+The Object.finalize method has been deprecated in Java 9, so relying on this will most
+certainly break OpenCV's Java bindings in the future. The arguments made for using it
+make no sense. Read my [last attempt](https://github.com/opencv/opencv/issues/8683) for
+the OpenCV devs to correct.
+
 ### Prerequisites
 
 This is only necessary if you wish to experiment yourself. If you just want to
